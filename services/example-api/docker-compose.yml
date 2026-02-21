@@ -10,6 +10,7 @@ services:
       replicas: 2
       update_config:
         parallelism: 1
+        order: start-first
         delay: 10s
         failure_action: rollback
       restart_policy:
