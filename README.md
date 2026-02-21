@@ -11,6 +11,26 @@ A production-ready Docker Swarm setup using Traefik as reverse proxy with automa
 
 ## Quick Start
 
+### Local Development
+
+For local testing without SSL/Let's Encrypt:
+
+1. **Deploy local Traefik**
+   ```bash
+   ./scripts/deploy-local.sh
+   ```
+
+2. **Deploy test service**
+   ```bash
+   docker stack deploy -c services/local/docker-compose.yml local-whoami
+   ```
+
+3. **Access the service**
+   - Dashboard: http://127.0.0.1:8080
+   - Test service: http://whoami.localtest.me (resolves to 127.0.0.1)
+
+### Production Deployment
+
 1. **Copy and configure environment**
    ```bash
    cp .env.example .env
@@ -41,14 +61,18 @@ A production-ready Docker Swarm setup using Traefik as reverse proxy with automa
 │       └── .env.example       # Production environment template
 ├── traefik/
 │   ├── traefik.yml            # Static Traefik configuration
+│   ├── traefik-local.yml      # Local dev config (no SSL)
 │   ├── docker-compose.yml     # Traefik stack definition
+│   ├── docker-compose-local.yml # Local dev stack
 │   ├── dynamic/
 │   │   └── middlewares.yml    # Security headers, rate limiting
 │   └── acme.json              # Let's Encrypt certificates
 ├── services/
+│   ├── local/                 # Local dev test service
 │   ├── example-web/           # Web application template
 │   └── example-api/           # API service template
 ├── scripts/
+│   ├── deploy-local.sh        # Local dev deployment
 │   ├── deploy-traefik.sh      # Traefik deployment script
 │   ├── deploy.sh              # Generic deployment script
 │   └── validate.sh            # Validation script
