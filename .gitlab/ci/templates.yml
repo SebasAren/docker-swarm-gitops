@@ -1,0 +1,37 @@
+.lint-yaml:
+  image: pipelinecomponents/yamllint:latest
+  script:
+    - yamllint -d relaxed .
+  only:
+    - merge_requests
+    - main
+
+.lint-shell:
+  image: koalaman/shellcheck-alpine:latest
+  script:
+    - find scripts -name "*.sh" -type f -exec shellcheck {} \;
+  only:
+    - merge_requests
+    - main
+
+.validate-compose:
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - apt-get update && apt-get install -y bash
+    - bash scripts/validate.sh
+  only:
+    - merge_requests
+    - main
+
+.deploy:
+  image: docker:latest
+  variables:
+    DOCKER_HOST: unix:///var/run/docker.sock
+    ENVIRONMENT: ""
+    DOMAIN: ""
+  script:
+    - bash scripts/deploy.sh
+  tags:
+    - swarm

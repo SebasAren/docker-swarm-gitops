@@ -1,0 +1,55 @@
+stages:
+  - validate
+  - staging
+  - production
+
+variables:
+  GIT_DEPTH: 1
+
+include:
+  - local: /.gitlab/ci/templates.yml
+
+lint:yaml:
+  extends: .lint-yaml
+  stage: validate
+
+lint:shell:
+  extends: .lint-shell
+  stage: validate
+
+validate:compose:
+  extends: .validate-compose
+  stage: validate
+
+deploy:staging:
+  extends: .deploy
+  stage: staging
+  variables:
+    ENVIRONMENT: staging
+    DOMAIN: $DOMAIN_STAGING
+  environment:
+    name: staging
+    url: https://staging.$DOMAIN_STAGING
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: manual
+      allow_failure: true
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: on_success
+    - when: manual
+      allow_failure: true
+
+deploy:production:
+  extends: .deploy
+  stage: production
+  variables:
+    ENVIRONMENT: production
+    DOMAIN: $DOMAIN_PRODUCTION
+  environment:
+    name: production
+    url: https://$DOMAIN_PRODUCTION
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+  needs:
+    - deploy:staging

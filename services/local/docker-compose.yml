@@ -1,0 +1,17 @@
+services:
+  app:
+    image: traefik/whoami
+    networks:
+      - traefik-public
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.whoami.rule=Host(`whoami.localtest.me`)"
+        - "traefik.http.routers.whoami.entrypoints=web"
+        - "traefik.http.services.whoami.loadbalancer.server.port=80"
+
+networks:
+  traefik-public:
+    external: true
