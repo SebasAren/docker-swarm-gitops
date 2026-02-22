@@ -30,7 +30,7 @@ certificatesResolvers:
   letsencrypt:
     acme:
       email: ${ACME_EMAIL}
-      storage: /etc/traefik/acme.json
+      storage: /acme/acme.json
       httpChallenge:
         entryPoint: web
 

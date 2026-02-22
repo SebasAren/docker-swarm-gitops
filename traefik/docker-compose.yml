@@ -1,12 +1,9 @@
-version: "3.8"
-
 services:
   traefik:
     image: traefik:3.6.8
     environment:
       - DOCKER_API_VERSION=1.44
-    command:
-      - "--configFile=/etc/traefik/traefik.yml"
+
     ports:
       - target: 80
         published: 80
@@ -22,9 +19,12 @@ services:
         mode: host
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik.yml:/etc/traefik/traefik.yml:ro
-      - ./dynamic:/etc/traefik/dynamic:ro
-      - ./acme.json:/etc/traefik/acme.json
+      - acme-data:/acme
+    configs:
+      - source: traefik_config
+        target: /etc/traefik/traefik.yml
+      - source: middlewares_config
+        target: /etc/traefik/dynamic/middlewares.yml
     networks:
       - traefik-public
     deploy:
@@ -38,11 +38,20 @@ services:
         delay: 5s
         max_attempts: 3
     healthcheck:
-      test: ["CMD", "traefik", "healthcheck", "--configFile=/etc/traefik/traefik.yml"]
+      test: ["CMD", "traefik", "healthcheck"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
+
+configs:
+  traefik_config:
+    file: ./traefik.yml
+  middlewares_config:
+    file: ./dynamic/middlewares.yml
+
+volumes:
+  acme-data:
 
 networks:
   traefik-public:
