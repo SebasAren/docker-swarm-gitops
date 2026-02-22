@@ -1,3 +1,6 @@
+api_addr = "http://127.0.0.1:8200"
+cluster_addr = "http://127.0.0.1:8201"
+
 storage "raft" {
   path = "/vault/data"
   node_id = "vault-1"
@@ -5,7 +8,6 @@ storage "raft" {
 
 listener "tcp" {
   address     = "[::]:8200"
-  cluster_addr = "[::]:8201"
   tls_disable = "true"
 }
 

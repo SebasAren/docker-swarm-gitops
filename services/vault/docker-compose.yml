@@ -8,8 +8,13 @@ services:
     configs:
       - source: vault_config
         target: /vault/config/config.hcl
+      - source: vault_entrypoint
+        target: /usr/local/bin/entrypoint.sh
+        mode: 0755
+    entrypoint: ["/usr/local/bin/entrypoint.sh"]
     cap_add:
       - IPC_LOCK
+      - CHOWN
     environment:
       - VAULT_UI=true
       - VAULT_ADDR=http://0.0.0.0:8200
@@ -39,15 +44,17 @@ services:
         delay: 5s
         max_attempts: 3
 
-    healthcheck:
-      test: ["CMD", "vault", "status", "-tls-skip-verify"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    # healthcheck:
+    #   test: ["CMD", "vault", "status", "-tls-skip-verify"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
 
 configs:
   vault_config:
     file: ./config.hcl
+  vault_entrypoint:
+    file: ./entrypoint.sh
 
 networks:
   traefik-public:
@@ -58,3 +65,4 @@ networks:
 
 volumes:
   vault-data:
+    external: true
